@@ -61,7 +61,7 @@ var tokens = [...]string{
 
 	INT:    "INT",
 	IDENT:  "IDENT",
-	STRING: "STRING",
+	STRING: "\"",
 
 	PLUS:  "+",
 	MINUS: "-",

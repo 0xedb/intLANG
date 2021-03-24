@@ -17,7 +17,8 @@ func TestKeyWords(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			tok := keywords[test.word]
+			tok := Token(test.word)
+
 			if got := tok.IsKeyWord(); got != test.expect {
 				t.Fatalf("Wanted: %t, Got: %t", test.expect, got)
 			}

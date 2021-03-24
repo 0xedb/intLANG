@@ -30,7 +30,7 @@ const (
 	DIV   = "/"
 	NOT   = "!"
 
-	ASSIGN = "=:"
+	ASSIGN = "="
 	EQL    = "=="
 	NEQL   = "!="
 	LST    = "<"

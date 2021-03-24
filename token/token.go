@@ -26,6 +26,7 @@ const (
 	DIV
 	NOT
 
+	ASSIGN
 	EQL
 	NEQL
 	LST
@@ -69,6 +70,7 @@ var tokens = [...]string{
 	DIV:   "/",
 	NOT:   "!",
 
+	ASSIGN: ":=",
 	EQL:  "==",
 	NEQL: "!=",
 	LST:  "<",

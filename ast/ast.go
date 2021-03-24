@@ -10,10 +10,12 @@ type Node interface {
 
 type Statement interface {
 	Node
+	statmentNode()
 }
 
 type Expression interface {
 	Node
+	expressionNode()
 }
 
 type Identifier struct {
@@ -31,6 +33,7 @@ type AtStatement struct {
 	Value      Expression
 }
 
+func (a *AtStatement) statmentNode() {}
 func (a *AtStatement) TokenValue() string {
 	return a.Token.Literal
 }
@@ -45,4 +48,15 @@ func (p *Program) TokenValue() string {
 	}
 
 	return ""
+}
+
+type ReturnStatement struct {
+	Token       token.TokenObj
+	ReturnValue Expression
+}
+
+func (r *ReturnStatement) statmentNode() {}
+
+func (r *ReturnStatement) TokenValue() string {
+	return r.Token.Literal
 }

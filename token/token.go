@@ -1,147 +1,95 @@
 package token
 
 import (
-	"log"
 	"regexp"
 )
 
 type (
-	Token byte
+	Token string
 
 	TokenObj struct {
 		Token   Token
 		Literal string
 	}
+
+	none struct{}
 )
 
 const (
-	ILLEGAL Token = iota
-	EOF
-	COMMENT
+	ILLEGAL = "ILLEGAL"
+	EOF     = "EOF"
+	COMMENT = "COMMENT"
 
-	// literal
-	INT
-	IDENT
-	STRING
+	INT    = "INT"
+	IDENT  = "IDENT"
+	STRING = "\""
 
-	// operator
-	PLUS
-	MINUS
-	MULT
-	DIV
-	NOT
+	PLUS  = "+"
+	MINUS = "-"
+	MULT  = "*"
+	DIV   = "/"
+	NOT   = "!"
 
-	ASSIGN
-	EQL
-	NEQL
-	LST
-	GRT
+	ASSIGN = "=:"
+	EQL    = "=="
+	NEQL   = "!="
+	LST    = "<"
+	GRT    = ">"
 
-	// delimiter
-	COMMA
-	COLON
-	SEMICOLON
-	RPAREN
-	LPAREN
-	RCURL
-	LCURL
-	RBRAC
-	LBRAC
+	COMMA     = ","
+	COLON     = ":"
+	SEMICOLON = ";"
+	RPAREN    = ")"
+	LPAREN    = "("
+	RCURL     = "}"
+	LCURL     = "{"
+	RBRAC     = "]"
+	LBRAC     = "["
 
-	// keyword
-	keyword_beg
-	FUNCTION
-	AT
-	TRUE
-	FALSE
-	IF
-	EL
-	RET
-	keyword_end
+	FUNCTION = "func"
+	AT       = "@"
+	TRUE     = "true"
+	FALSE    = "false"
+	IF       = "if"
+	EL       = "el"
+	RET      = "ret"
 )
 
-var tokens = [...]string{
-	ILLEGAL: "ILLEGAL",
-	EOF:     "EOF",
-	COMMENT: "COMMENT",
-
-	INT:    "INT",
-	IDENT:  "IDENT",
-	STRING: "\"",
-
-	PLUS:  "+",
-	MINUS: "-",
-	MULT:  "*",
-	DIV:   "/",
-	NOT:   "!",
-
-	ASSIGN: "=:",
-	EQL:    "==",
-	NEQL:   "!=",
-	LST:    "<",
-	GRT:    ">",
-
-	COMMA:     ",",
-	COLON:     ":",
-	SEMICOLON: ";",
-	RPAREN:    ")",
-	LPAREN:    "(",
-	RCURL:     "}",
-	LCURL:     "{",
-	RBRAC:     "]",
-	LBRAC:     "[",
-
-	FUNCTION: "func",
-	AT:       "@",
-	TRUE:     "true",
-	FALSE:    "false",
-	IF:       "if",
-	EL:       "el",
-	RET:      "ret",
-}
-
-var keywords map[string]Token
+var keywords map[string]none
 
 func init() {
-	keywords = map[string]Token{}
-
-	for i := keyword_beg + 1; i < keyword_end; i++ {
-		keywords[tokens[i]] = i
+	keywords = map[string]none{
+		FUNCTION: none{},
+		AT:       none{},
+		TRUE:     none{},
+		FALSE:    none{},
+		IF:       none{},
+		EL:       none{},
+		RET:      none{},
 	}
 }
 
 func LookupIdentifier(id string) Token {
-	if tok, found := keywords[id]; found {
-		return tok
+	if _, found := keywords[id]; found {
+		return Token(id)
 	}
 
 	return IDENT
 }
 
 func (tok Token) IsKeyWord() bool {
-	return keyword_beg < tok && tok < keyword_end
+	_, found := keywords[string(tok)]
+	return found
 }
 
 func IsLetter(tok byte) bool {
-	re := `[a-zA-Z_]`
+	re := regexp.MustCompile(`[a-zA-Z_]`)
 
-	digit_ok, err := regexp.MatchString(string(tok), re)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return digit_ok
+	return re.MatchString(string(tok))
 }
 
 func IsNumber(tok byte) bool {
-	re := `[0 - 9]`
+	re := regexp.MustCompile(`[0-9]`)
 
-	number_ok, err := regexp.MatchString(string(tok), re)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return number_ok
+	return re.MatchString(string(tok))
 }

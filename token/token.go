@@ -6,7 +6,7 @@ import (
 )
 
 type (
-	Token uint8
+	Token byte
 
 	TokenObj struct {
 		Token   Token

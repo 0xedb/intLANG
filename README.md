@@ -5,6 +5,7 @@
 - [ ] map
 - [ ] array
 - [ ] string
+- [ ] comment
 - [ ] closure
 - [ ] boolean
 - [ ] integers

@@ -70,7 +70,7 @@ var tokens = [...]string{
 	DIV:   "/",
 	NOT:   "!",
 
-	ASSIGN: ":=",
+	ASSIGN: "=:",
 	EQL:  "==",
 	NEQL: "!=",
 	LST:  "<",

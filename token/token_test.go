@@ -5,12 +5,6 @@ import (
 )
 
 func TestKeyWords(t *testing.T) {
-	tok := keywords["func"]
-
-	if !tok.IsKeyWord() {
-		t.Fail()
-	}
-
 	tests := []struct {
 		name   string
 		word   string
@@ -18,6 +12,7 @@ func TestKeyWords(t *testing.T) {
 	}{
 		{"func", "func", true},
 		{"string", "string", false},
+		{"at", "@", true},
 	}
 
 	for _, test := range tests {

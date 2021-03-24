@@ -1,6 +1,13 @@
 package token
 
-type Token uint8
+type (
+	Token uint8
+
+	TokenObj struct {
+		Token   Token
+		Literal string
+	}
+)
 
 const (
 	ILLEGAL Token = iota

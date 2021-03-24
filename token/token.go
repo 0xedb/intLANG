@@ -122,7 +122,7 @@ func (tok Token) IsKeyWord() bool {
 	return keyword_beg < tok && tok < keyword_end
 }
 
-func (tok Token) IsLetter() bool {
+func IsLetter(tok byte) bool {
 	re := `[a-zA-Z_]`
 
 	digit_ok, err := regexp.MatchString(string(tok), re)
@@ -134,7 +134,7 @@ func (tok Token) IsLetter() bool {
 	return digit_ok
 }
 
-func (tok Token) IsNumber() bool {
+func IsNumber(tok byte) bool {
 	re := `[0 - 9]`
 
 	number_ok, err := regexp.MatchString(string(tok), re)

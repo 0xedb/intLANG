@@ -1,5 +1,10 @@
 package token
 
+import (
+	"log"
+	"regexp"
+)
+
 type (
 	Token uint8
 
@@ -71,10 +76,10 @@ var tokens = [...]string{
 	NOT:   "!",
 
 	ASSIGN: "=:",
-	EQL:  "==",
-	NEQL: "!=",
-	LST:  "<",
-	GRT:  ">",
+	EQL:    "==",
+	NEQL:   "!=",
+	LST:    "<",
+	GRT:    ">",
 
 	COMMA:     ",",
 	COLON:     ":",
@@ -115,4 +120,28 @@ func LookupIdentifier(id string) Token {
 
 func (tok Token) IsKeyWord() bool {
 	return keyword_beg < tok && tok < keyword_end
+}
+
+func (tok Token) IsLetter() bool {
+	re := `[a-zA-Z_]`
+
+	digit_ok, err := regexp.MatchString(string(tok), re)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return digit_ok
+}
+
+func (tok Token) IsNumber() bool {
+	re := `[0 - 9]`
+
+	number_ok, err := regexp.MatchString(string(tok), re)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return number_ok
 }

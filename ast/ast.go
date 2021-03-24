@@ -8,11 +8,11 @@ type Node interface {
 	TokenValue() string
 }
 
-type Statement struct {
+type Statement interface {
 	Node
 }
 
-type Expression struct {
+type Expression interface {
 	Node
 }
 

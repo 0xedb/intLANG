@@ -44,12 +44,21 @@ func (l *Lexer) NextToken() token.TokenObj {
 	case token.DIV:
 		tok = makeToken(token.DIV, l.ch)
 	case token.NOT:
-		tok = makeToken(token.NOT, l.ch)
-	case token.EQL:
-		// assignment operator here too
-		tok = makeToken(token.EQL, l.ch)
-	case token.NEQL:
-		tok = makeToken(token.NEQL, l.ch)
+		if string(l.peekChar()) == token.ASSIGN {
+			l.readChar()
+			tok.Token = token.NEQL
+			tok.Literal = token.NEQL
+		} else {
+			tok = makeToken(token.NOT, l.ch)
+		}
+	case token.ASSIGN:
+		if string(l.peekChar()) == token.EQL {
+			l.readChar()
+			tok.Token = token.EQL
+			tok.Literal = token.EQL
+		} else {
+			tok = makeToken(token.ASSIGN, l.ch)
+		}
 	case token.LST:
 		tok = makeToken(token.LST, l.ch)
 	case token.GRT:
@@ -76,18 +85,18 @@ func (l *Lexer) NextToken() token.TokenObj {
 		tok = makeToken(token.STRING, l.ch)
 	case token.AT:
 		tok = makeToken(token.AT, l.ch)
-	case token.ASSIGN:
-		tok = makeToken(token.ASSIGN, l.ch)
 	case string(byte(0)):
-		tok = makeToken(token.EOF, l.ch)
+		tok.Literal = ""
+		tok.Token = token.EOF
+
 	default:
 		if token.IsNumber(l.ch) {
 			tok.Token = token.INT
 			tok.Literal = l.readNumber()
 			return tok
 		} else if token.IsLetter(l.ch) {
-			tok.Token = token.IDENT
 			tok.Literal = l.readIdentifier()
+			tok.Token = token.LookupIdentifier(tok.Literal)
 			return tok
 		} else {
 			tok = makeToken(token.ILLEGAL, l.ch)
@@ -101,6 +110,14 @@ func (l *Lexer) NextToken() token.TokenObj {
 
 func makeToken(tok token.Token, ch byte) token.TokenObj {
 	return token.TokenObj{Token: tok, Literal: string(ch)}
+}
+
+func (l *Lexer) peekChar() byte {
+	if l.offset >= len(l.input) {
+		return 0
+	}
+
+	return l.input[l.offset]
 }
 
 func (l *Lexer) readNumber() string {

@@ -46,7 +46,7 @@ const (
 	RBRAC     = "]"
 	LBRAC     = "["
 
-	FUNCTION = "func"
+	FUNCTION = "fn"
 	AT       = "@"
 	TRUE     = "true"
 	FALSE    = "false"
@@ -73,7 +73,6 @@ func LookupIdentifier(id string) Token {
 	if _, found := keywords[id]; found {
 		return Token(id)
 	}
-
 	return IDENT
 }
 

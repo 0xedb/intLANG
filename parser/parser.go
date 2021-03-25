@@ -2,25 +2,112 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/0xedb/intlang/ast"
 	"github.com/0xedb/intlang/lexer"
 	"github.com/0xedb/intlang/token"
 )
 
+type (
+	prefixParseFn func() ast.Expression
+	infixParseFn  func(ast.Expression) ast.Expression
+)
+
 type Parser struct {
 	lexer     *lexer.Lexer
 	errors    []string
 	cur, peek token.TokenObj
+
+	infixFn  map[token.Token]infixParseFn
+	prefixFn map[token.Token]prefixParseFn
 }
 
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
-		lexer:  l,
-		errors: []string{},
+		lexer:    l,
+		errors:   []string{},
+		infixFn:  map[token.Token]infixParseFn{},
+		prefixFn: map[token.Token]prefixParseFn{},
 	}
 
+	p.registerPrefix(token.IDENT, p.parseIdentifier)
+	p.registerPrefix(token.INT, p.parseIntegralLiteral)
+	p.registerPrefix(token.NOT, p.parsePrefixExpression)
+	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
+
+	p.registerInfix(token.PLUS, p.parseInfixExpression)
+	p.registerInfix(token.MINUS, p.parseInfixExpression)
+	p.registerInfix(token.DIV, p.parseInfixExpression)
+	p.registerInfix(token.MULT, p.parseInfixExpression)
+	p.registerInfix(token.EQL, p.parseInfixExpression)
+	p.registerInfix(token.NEQL, p.parseInfixExpression)
+	p.registerInfix(token.LST, p.parseInfixExpression)
+	p.registerInfix(token.GRT, p.parseInfixExpression)
+
 	return p
+}
+
+func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+	exp := &ast.InfixExpression{
+		Token:    p.cur,
+		Operator: p.cur.Literal,
+		Left:     left,
+	}
+
+	precedence := token.LookupPrecedence(p.cur.Literal)
+
+	p.nextToken()
+
+	exp.Right = p.parseExpression(precedence)
+
+	return exp
+}
+
+func (p *Parser) parsePrefixExpression() ast.Expression {
+	exp := &ast.PrefixExpression{
+		Token:    p.cur,
+		Operator: p.cur.Literal,
+	}
+
+	p.nextToken()
+	exp.Right = p.parseExpression(token.PREFIX)
+
+	return exp
+}
+
+func (p *Parser) noPrefixParseFnError(t string) {
+	msg := fmt.Sprintf("no prefix parse function for %s found", t)
+	p.errors = append(p.errors, msg)
+}
+
+func (p *Parser) parseIntegralLiteral() ast.Expression {
+	lit := &ast.IntegralExpression{Token: p.cur}
+
+	value, err := strconv.ParseInt(p.cur.Literal, 0, 64)
+
+	if err == nil {
+		msg := fmt.Sprintf("could not parse %q as integer", p.cur.Literal)
+		p.errors = append(p.errors, msg)
+		return nil
+	}
+
+	lit.Value = value
+
+	return lit
+}
+
+func (p *Parser) parseIdentifier() ast.Expression {
+
+	return &ast.Identifier{Token: p.cur, Value: p.cur.Literal}
+}
+
+func (p *Parser) registerInfix(tok token.Token, fn infixParseFn) {
+	p.infixFn[tok] = fn
+}
+
+func (p *Parser) registerPrefix(tok token.Token, fn prefixParseFn) {
+	p.prefixFn[tok] = fn
 }
 
 func (p *Parser) nextToken() {
@@ -53,8 +140,45 @@ func (p *Parser) parseStatment() ast.Statement {
 	case token.RET:
 		return p.parseReturnStatement()
 	default:
+		return p.parseExpressionStatement()
+	}
+}
+
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	stmt := &ast.ExpressionStatement{Token: p.cur}
+
+	stmt.Expression = p.parseExpression(token.LOWEST)
+
+	if p.peekTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+	prefix := p.prefixFn[p.cur.Token]
+
+	if prefix == nil {
+		p.noPrefixParseFnError(p.cur.Literal)
 		return nil
 	}
+
+	leftExp := prefix()
+
+	for p.cur.Token != token.SEMICOLON && precedence < token.LookupPrecedence(p.peek.Literal) {
+		infix := p.infixFn[p.cur.Token]
+
+		if infix == nil {
+			return leftExp
+		}
+
+		p.nextToken()
+
+		leftExp = infix(leftExp)
+	}
+
+	return leftExp
 }
 
 func (p *Parser) parseAtStatement() *ast.AtStatement {

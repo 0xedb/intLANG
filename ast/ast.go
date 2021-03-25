@@ -60,3 +60,14 @@ func (r *ReturnStatement) statmentNode() {}
 func (r *ReturnStatement) TokenValue() string {
 	return r.Token.Literal
 }
+
+type ExpressionStatement struct {
+	Token      token.TokenObj
+	Expression Expression
+}
+
+func (e *ExpressionStatement) statmentNode() {}
+
+func (e *ExpressionStatement) TokenValue() string {
+	return e.Token.Literal
+}

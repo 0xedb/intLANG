@@ -82,3 +82,14 @@ func (i *IntegralExpression) expressionNode() {}
 func (i *IntegralExpression) TokenValue() string {
 	return i.Token.Literal
 }
+
+type PrefixExpression struct {
+	Token    token.TokenObj
+	Operator string
+	Right    Expression
+}
+
+func (p *PrefixExpression) expressionNode() {}
+func (p *PrefixExpression) TokenValue() string {
+	return p.Token.Literal
+}

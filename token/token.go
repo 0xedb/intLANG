@@ -16,6 +16,17 @@ type (
 )
 
 const (
+	_ int = iota
+	LOWEST
+	EQUALS      // ==
+	LESSGREATER // > or <
+	SUM         // +
+	PRODUCT     // *
+	PREFIX      // -X or !X
+	CALL        // myFunction(X)
+)
+
+const (
 	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
 	COMMENT = "COMMENT"

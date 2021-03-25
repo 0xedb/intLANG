@@ -67,6 +67,7 @@ const (
 )
 
 var keywords map[string]none
+var precedence map[string]int
 
 func init() {
 	keywords = map[string]none{
@@ -77,6 +78,17 @@ func init() {
 		IF:       none{},
 		EL:       none{},
 		RET:      none{},
+	}
+
+	precedence = map[string]int{
+		ASSIGN: EQUALS,
+		NEQL:   EQUALS,
+		LST:    LESSGREATER,
+		GRT:    LESSGREATER,
+		PLUS:   SUM,
+		MINUS:  SUM,
+		DIV:    PRODUCT,
+		MULT:   PRODUCT,
 	}
 }
 
@@ -102,4 +114,12 @@ func IsNumber(tok byte) bool {
 	re := regexp.MustCompile(`[0-9]`)
 
 	return re.MatchString(string(tok))
+}
+
+func LookupPrecedence(tok string) int {
+	if val, ok := precedence[tok]; ok {
+		return val
+	}
+
+	return LOWEST
 }

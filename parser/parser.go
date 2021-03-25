@@ -37,6 +37,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.TRUE, p.parseBoolean)
 	p.registerPrefix(token.FALSE, p.parseBoolean)
+	p.registerPrefix(token.IF, p.parseIfExpression)
+	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
 
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
@@ -48,6 +50,58 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.GRT, p.parseInfixExpression)
 
 	return p
+}
+
+func (p *Parser) parseIfExpression() ast.Expression {
+	expression := &ast.IfExpression{Token: p.cur}
+	if !p.expectToken(token.LPAREN) {
+		return nil
+	}
+	p.nextToken()
+	expression.Condition = p.parseExpression(token.LOWEST)
+	if !p.expectToken(token.RPAREN) {
+		return nil
+	}
+	if !p.expectToken(token.LCURL) {
+		return nil
+	}
+	expression.Consequence = p.parseBlockStatement()
+
+	if p.peekTokenIs(token.EL) {
+		p.nextToken()
+		if !p.expectToken(token.LCURL) {
+			return nil
+		}
+		expression.Alternative = p.parseBlockStatement()
+	}
+
+	return expression
+}
+
+func (p *Parser) parseBlockStatement() *ast.BlockStatement {
+	block := &ast.BlockStatement{Token: p.cur}
+	block.Statements = []ast.Statement{}
+	p.nextToken()
+	for !p.curTokenIs(token.RCURL) && !p.curTokenIs(token.EOF) {
+		stmt := p.parseStatement()
+		if stmt != nil {
+			block.Statements = append(block.Statements, stmt)
+		}
+		p.nextToken()
+	}
+	return block
+}
+
+func (p *Parser) parseGroupedExpression() ast.Expression {
+	p.nextToken()
+
+	exp := p.parseExpression(token.LOWEST)
+
+	if !p.expectToken(token.RPAREN) {
+		return nil
+	}
+
+	return exp
 }
 
 func (p *Parser) parseBoolean() ast.Expression {
@@ -127,7 +181,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	}
 
 	for p.cur.Token != token.EOF {
-		stmt := p.parseStatment()
+		stmt := p.parseStatement()
 
 		if stmt != nil {
 			program.Statements = append(program.Statements, stmt)
@@ -139,7 +193,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	return program
 }
 
-func (p *Parser) parseStatment() ast.Statement {
+func (p *Parser) parseStatement() ast.Statement {
 	switch p.cur.Literal {
 	case token.AT:
 		return p.parseAtStatement()

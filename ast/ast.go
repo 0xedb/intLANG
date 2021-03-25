@@ -10,7 +10,7 @@ type Node interface {
 
 type Statement interface {
 	Node
-	statmentNode()
+	statementNode()
 }
 
 type Expression interface {
@@ -34,7 +34,7 @@ type AtStatement struct {
 	Value      Expression
 }
 
-func (a *AtStatement) statmentNode() {}
+func (a *AtStatement) statementNode() {}
 func (a *AtStatement) TokenValue() string {
 	return a.Token.Literal
 }
@@ -56,7 +56,7 @@ type ReturnStatement struct {
 	ReturnValue Expression
 }
 
-func (r *ReturnStatement) statmentNode() {}
+func (r *ReturnStatement) statementNode() {}
 
 func (r *ReturnStatement) TokenValue() string {
 	return r.Token.Literal
@@ -67,7 +67,7 @@ type ExpressionStatement struct {
 	Expression Expression
 }
 
-func (e *ExpressionStatement) statmentNode() {}
+func (e *ExpressionStatement) statementNode() {}
 
 func (e *ExpressionStatement) TokenValue() string {
 	return e.Token.Literal
@@ -112,3 +112,21 @@ type Boolean struct {
 
 func (b *Boolean) expressionNode()    {}
 func (b *Boolean) TokenValue() string { return b.Token.Literal }
+
+type IfExpression struct {
+	Token       token.TokenObj // The 'if' token
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
+func (ie *IfExpression) expressionNode()    {}
+func (ie *IfExpression) TokenValue() string { return ie.Token.Literal }
+
+type BlockStatement struct {
+	Token      token.TokenObj // the { token
+	Statements []Statement
+}
+
+func (bs *BlockStatement) statementNode()     {}
+func (bs *BlockStatement) TokenValue() string { return bs.Token.Literal }

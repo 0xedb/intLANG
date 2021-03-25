@@ -93,3 +93,14 @@ func (p *PrefixExpression) expressionNode() {}
 func (p *PrefixExpression) TokenValue() string {
 	return p.Token.Literal
 }
+
+type InfixExpression struct {
+	Token       token.TokenObj
+	Operator    string
+	Left, Right Expression
+}
+
+func (i *InfixExpression) expressionNode() {}
+func (i *InfixExpression) TokenValue() string {
+	return i.Token.Literal
+}

@@ -23,6 +23,7 @@ type Identifier struct {
 	Value string
 }
 
+func (i *Identifier) expressionNode() {}
 func (i *Identifier) TokenValue() string {
 	return i.Token.Literal
 }
@@ -70,4 +71,14 @@ func (e *ExpressionStatement) statmentNode() {}
 
 func (e *ExpressionStatement) TokenValue() string {
 	return e.Token.Literal
+}
+
+type IntegralExpression struct {
+	Token token.TokenObj
+	Value int64
+}
+
+func (i *IntegralExpression) expressionNode() {}
+func (i *IntegralExpression) TokenValue() string {
+	return i.Token.Literal
 }

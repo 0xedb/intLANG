@@ -130,3 +130,12 @@ type BlockStatement struct {
 
 func (bs *BlockStatement) statementNode()     {}
 func (bs *BlockStatement) TokenValue() string { return bs.Token.Literal }
+
+type FunctionLiteral struct {
+	Token      token.TokenObj // The 'fn' token
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
+func (fl *FunctionLiteral) expressionNode()    {}
+func (fl *FunctionLiteral) TokenValue() string { return fl.Token.Literal }

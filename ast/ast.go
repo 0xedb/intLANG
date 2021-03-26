@@ -139,3 +139,12 @@ type FunctionLiteral struct {
 
 func (fl *FunctionLiteral) expressionNode()    {}
 func (fl *FunctionLiteral) TokenValue() string { return fl.Token.Literal }
+
+type CallExpression struct {
+	Token     token.TokenObj // The '(' token
+	Function  Expression     // Identifier or FunctionLiteral
+	Arguments []Expression
+}
+
+func (ce *CallExpression) expressionNode()    {}
+func (ce *CallExpression) TokenValue() string { return ce.Token.Literal }

@@ -7,8 +7,9 @@ import (
 	"log"
 	"os/user"
 
+	"github.com/0xedb/intlang/evaluator"
 	"github.com/0xedb/intlang/lexer"
-	"github.com/0xedb/intlang/token"
+	"github.com/0xedb/intlang/parser"
 )
 
 const (
@@ -43,10 +44,28 @@ func StartREPL(in io.Reader, out io.Writer) {
 			return
 		}
 		line := scanner.Text()
-
 		l := lexer.New(line)
-		for tok := l.NextToken(); tok.Token != token.EOF; tok = l.NextToken() {
-			fmt.Printf("%+v\n", tok)
+		p := parser.New(l)
+		program := p.ParseProgram()
+
+		if len(p.Errors()) != 0 {
+			printParserErrors(out, p.Errors())
+			continue
 		}
+		evaluated := evaluator.Eval(program)
+		if evaluated != nil {
+			io.WriteString(out, evaluated.Inspect())
+			io.WriteString(out, "\n")
+		}
+	}
+}
+
+func printParserErrors(out io.Writer, errors []string) {
+	io.WriteString(out, GREET)
+	io.WriteString(out, "Woops! We ran into some monkye business here!\n")
+	io.WriteString(out, "  parser errors:\n")
+
+	for _, msg := range errors {
+		io.WriteString(out, "\t"+msg+"\n")
 	}
 }
